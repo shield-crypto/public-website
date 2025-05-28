@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shield Crypto - Namada Validator</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+
+  <style>
+    .box {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <style>
+    .code-container {
+      position: relative;
+      background-color: #1e1e2f;
+      border-radius: 8px;
+      padding: 15px;
+      color: #ffffff;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 14px;
+      width: 100%;
+      /* Make the container take the full width of its parent */
+      box-sizing: border-box;
+      /* Include padding in the width calculation */
+      overflow-x: auto;
+      /* Enable horizontal scrolling if content overflows */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .code-container code {
+      white-space: pre;
+      /* Preserve whitespace and line breaks */
+      display: block;
+      /* Ensure the code block is displayed as a block element */
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .copy-btn:hover {
+      background-color: #45a049;
+    }
+
+    /* Optional: Scrollbar Styling */
+    .code-container::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .code-container::-webkit-scrollbar-thumb {
+      background-color: #444;
+      border-radius: 4px;
+    }
+
+    .code-container::-webkit-scrollbar-thumb:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="fixed flex justify-between py-6 w-full lg:px-48 md:px-12 px-4 content-center bg-secondary z-10">
+    <div class="flex items-center">
+      <a href="." alt="Shield Crypto Main Page Link">
+        <img src='assets/Logo_black.svg' alt="Shield Crypto Logo" class="h-12" height="48" />
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section
+    class="pt-24 md:mt-0 md:h-screen flex flex-col justify-center text-center md:text-left md:flex-row md:justify-between md:items-center lg:px-48 md:px-12 px-4 bg-secondary">
+    <div class="md:flex-1 md:mr-10">
+      <h1 class="font-pt-serif text-5xl font-bold mb-7">
+        <span class="bg-underline1 bg-left-bottom bg-no-repeat pb-6 leading-snug bg-100%">
+          Namada Snapshot
+        </span>
+      </h1>
+      <p class="font-pt-serif font-normal mb-7">
+        Are you a Namada operator or you want to run a Namada node ? Use a snapshot to speed up the synchronization of
+        your node.
+      </p>
+
+      <div class="box">
+        <div>
+          <h3 class="font-semibold text-2xl mb-6">What is a Snapshot?</h3>
+        </div>
+        <p>A snapshot is a saved state of the blockchain database at a specific point in time. It allows new nodes to
+          synchronize with the network much faster by downloading and applying the snapshot instead of replaying all
+          transactions from the beginning of the chain.</p>
+        <div class="flex items-start font-montserrat my-6 mr-1"><img src="assets/logos/Lightning.svg" alt=""
+            class="h-7 mr-4"> Reduced synchronization time</div>
+        <div class="flex items-start font-montserrat my-6 mr-1"><img src="assets/logos/Lightning.svg" alt=""
+            class="h-7 mr-4"> Lower bandwidth consumption</div>
+        <div class="flex items-start font-montserrat my-6 mr-1"><img src="assets/logos/Lightning.svg" alt=""
+            class="h-7 mr-4"> Immediate access to the latest state of the blockchain</div>
+
+        <p><b>Snapshot is taken from our public RPC node that is synched directly from the blokchain (Not from other
+            snapshots)</b>. </p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section
+    class="flex flex-col justify-center text-left md:flex-row md:justify-between md:items-center lg:px-48 md:px-12 px-4 mb-16 bg-secondary">
+    <div class="md:flex-1 md:mr-10 max-w-full">
+      <h2 class="font-semibold text-center md:text-left text-2xl mb-6 bg-100%">
+        Synchronize a Node Using a Snapshot
+      </h2>
+
+      <div class="code-container" id="code-container">
+        <button class="copy-btn" onclick="copyCode()">Copy</button>
+        <code>
+#!/bin/bash
+
+NAMADA_PATH=$HOME/.local/share/namada/namada.5f5de2dd1b88cba30586420
+
+# Install required dependencies
+sudo apt-get install wget lz4 -y
+
+# Stop your node
+sudo systemctl stop namadad
+
+# Back up your validator state
+sudo cp $NAMADA_PATH/cometbft/data/priv_validator_state.json $NAMADA_PATH/priv_validator_state.json.backup
+
+# Delete previous db and data folders
+sudo rm -rf $NAMADA_PATH/db
+sudo rm -rf $NAMADA_PATH/cometbft/data
+
+# Download db and data snapshots
+wget -O db.lz4 https://namada-snapshot.shield-crypto.com/db.lz4
+wget -O data.lz4 https://namada-snapshot.shield-crypto.com/data.lz4
+
+# Decompress db and data snapshots
+lz4 -c -d db.lz4 | tar -xv -C $NAMADA_PATH
+lz4 -c -d data.lz4 | tar -xv -C $NAMADA_PATH/cometbft
+
+# Delete downloaded db and data snapshots
+sudo rm -v db.lz4
+sudo rm -v data.lz4
+
+# Restore your validator state
+sudo cp $NAMADA_PATH/priv_validator_state.json.backup $NAMADA_PATH/cometbft/data/priv_validator_state.json
+
+# Start your node
+sudo systemctl start namadad
+</code>
+      </div>
+
+    </div>
+    <script>
+      function copyCode() {
+        const code = document.querySelector("#code-container code").innerText;
+        navigator.clipboard.writeText(code).then(() => {
+          alert("Code copied to clipboard!");
+        }).catch(err => {
+          alert("Failed to copy code: " + err);
+        });
+      }
+    </script>
+  </section>
+
+
+  <!-- Details & Downéload -->
+  <section class="sectionSize bg-black text-white">
+    <div>
+      <h2 class="secondaryTitle bg-underline3 bg-100%">Download Data</h2>
+    </div>
+    <div class="md:grid md:grid-cols-2 gap-8">
+      <div class="bg-secondary text-black rounded-2xl p-8 mb-8 md:mb-0">
+        <h3 class="font-pt-serif font-bold text-2xl mb-4">Latest Snapshot Details</h3>
+        <p class="font-montserrat mb-4">
+        <div id="snapshot-info">
+          <p><strong>Snapshot Timestamp:</strong> <span id="timestamp">Loading...</span></p>
+          <p>-</p>
+          <p><strong>Latest Block Timestamp:</strong> <span id="latestblocktime">Loading...</span></p>
+          <p>-</p>
+          <p><strong>Latest Block Height:</strong> <span id="latestblockheight">Loading...</span></p>
+          <p>-</p>
+          <p><strong>DB Size:</strong> <span id="dbsize">Loading...</span> </p>
+          <p>-</p>
+          <p><strong>Data Size:</strong> <span id="cometbftsize">Loading...</span></p>
+        </div>
+        </p>
+      </div>
+
+      <div class="bg-secondary text-black rounded-2xl p-8">
+        <h3 class="font-pt-serif font-bold text-2xl mb-4">Direct Links</h3>
+
+
+        <a href="https://namada-snapshot.shield-crypto.com/db.lz4" target="_blank"
+          class="bg-[#ffff54] my-6 block text-black px-6 py-3 rounded-lg hover:bg-white hover:text-black border-2 border-black transition duration-300">
+          Download Snapshot DB
+        </a>
+        <p><strong>SHA256:</strong></p>
+        <div class="code-container" id="dbchecksum">
+          <code>
+          </code>
+        </div>
+
+        <a href="https://namada-snapshot.shield-crypto.com/data.lz4" target="_blank"
+          class="bg-[#ffff54] my-6 block text-black px-6 py-3 rounded-lg hover:bg-white hover:text-black border-2 border-black transition duration-300">
+          Download Snapshot Data
+        </a>
+        <p><strong>SHA256:</strong></p>
+        <div class="code-container" id="datachecksum">
+          <code>
+          </code>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="w-full bg-white" />
+
+
+
+  </section>
+  <!-- Footer -->
+  <section class="bg-black sectionSize">
+    <div class="mb-4">
+      <img src='assets/Logo_white.svg' alt="Shield Crypto Logo" class="h-14" />
+    </div>
+    <div class="flex mb-8">
+      <a href="https://discord.com/invite/v7uSwKN3">
+        <img src='assets/logos/Discord.svg' alt="Discord logo" class="mx-4" />
+      </a>
+      <a href="mailto:namada@shield-crypto.com">
+        <img src='assets/logos/Email.svg' alt="Email Icon" class="mx-4" />
+      </a>
+    </div>
+    <iframe src="https://namada-validator-status.shield-crypto.com/badge?theme=dark" width="250" height="30"
+      frameborder="0" scrolling="no" style="color-scheme: normal"></iframe>
+    <div class="text-white font-montserrat text-sm">
+      © 2025 Shield Crypto Validator. All rights reserved
+    </div>
+  </section>
+
+
+  <script>
+    // Load snapshot details dynamically
+    fetch('https://namada-snapshot.shield-crypto.com/snapshot-details.json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('timestamp').textContent = data.timestamp;
+        document.getElementById('latestblocktime').textContent = data.latest_block_time;
+        document.getElementById('latestblockheight').textContent = data.latest_block_height;
+        document.getElementById('dbsize').textContent = data.dbsize;
+        document.getElementById('cometbftsize').textContent = data.cometbftsize;
+        document.getElementById('dbchecksum').textContent = data.dbchecksum;
+        document.getElementById('datachecksum').textContent = data.datachecksum;
+
+        
+        
+
+      })
+      .catch(error => {
+        console.error('Error loading snapshot details:', error);
+      });
+  </script>
+</body>
+
+</html>

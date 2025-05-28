@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shield Crypto - Namada Validator</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+
+  <style>
+    .box {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <style>
+    .code-container {
+      position: relative;
+      background-color: #1e1e2f;
+      border-radius: 8px;
+      padding: 15px;
+      color: #ffffff;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 14px;
+      width: 100%;
+      /* Make the container take the full width of its parent */
+      box-sizing: border-box;
+      /* Include padding in the width calculation */
+      overflow-x: auto;
+      /* Enable horizontal scrolling if content overflows */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .code-container code {
+      white-space: pre;
+      /* Preserve whitespace and line breaks */
+      display: block;
+      /* Ensure the code block is displayed as a block element */
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .copy-btn:hover {
+      background-color: #45a049;
+    }
+
+    /* Optional: Scrollbar Styling */
+    .code-container::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .code-container::-webkit-scrollbar-thumb {
+      background-color: #444;
+      border-radius: 4px;
+    }
+
+    .code-container::-webkit-scrollbar-thumb:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="fixed flex justify-between py-6 w-full lg:px-48 md:px-12 px-4 content-center bg-secondary z-10">
+    <div class="flex items-center">
+      <a href="." alt="Shield Crypto Main Page Link">
+        <img src='assets/Logo_black.svg' alt="Shield Crypto Logo" class="h-12" height="48" />
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section
+    class="pt-24 md:mt-0 md:h-screen flex flex-col justify-center text-center md:text-left md:flex-row md:justify-between md:items-center lg:px-48 md:px-12 px-4 bg-secondary">
+    <div class="md:flex-1 md:mr-10">
+      <h1 class="font-pt-serif text-5xl font-bold mb-7">
+        <span class="bg-underline1 bg-left-bottom bg-no-repeat pb-6 leading-snug bg-100%">
+          Indexer Snapshot
+        </span>
+      </h1>
+      <p class="font-pt-serif font-normal mb-7">
+        Would you like to run the backend end services for Namadillo (e.g. Indexer and MASP Indexer) but not willing to wait for the node to synch from scratch?
+      </p>
+
+      <div class="box">
+        <div>
+          <h3 class="font-semibold text-2xl mb-6">What is the Namada Indexer snapshots?</h3>
+        </div>
+        <p>The Namada Indexer snapshots are the database dump for the services <a class="underline" href="https://github.com/anoma/namada-indexer">namada indexer</a> and <a class="underline" href="https://github.com/anoma/namada-masp-indexer">namada masp indexer</a>. They allow to start the service with an initialiazed DB without starting from empty databases.</p>
+        <div class="flex items-start font-montserrat my-6 mr-1"><img src="assets/logos/Lightning.svg" alt=""
+            class="h-7 mr-4"> Reduced synchronization time</div>
+        <div class="flex items-start font-montserrat my-6 mr-1"><img src="assets/logos/Lightning.svg" alt=""
+            class="h-7 mr-4"> Lower bandwidth consumption</div>
+        <div class="flex items-start font-montserrat my-6 mr-1"><img src="assets/logos/Lightning.svg" alt=""
+            class="h-7 mr-4"> Immediate access to the latest state of the blockchain</div>
+
+        <p><b>Indexer Snapshots are taken from our public Namada Indexers that are synched directly from the blokchain (Not from other
+            snapshots)</b>. </p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section
+    class="flex flex-col justify-center text-left md:flex-row md:justify-between md:items-center lg:px-48 md:px-12 px-4 mb-16 bg-secondary">
+    <div class="md:flex-1 md:mr-10 max-w-full">
+      <h2 class="font-semibold text-center md:text-left text-2xl mb-6 bg-100%">
+        Adapt the following script to restore our snapshots to your databases
+      </h2>
+
+      <div class="code-container" id="code-container">
+        <button class="copy-btn" onclick="copyCode()">Copy</button>
+        <code>
+          # Namada Indexer
+          SNAPSHOT_URL = https://namada-snapshot.shield-crypto.com/namada-indexer.sql
+          DB_NAME = namada-indexer
+          # MASP Indexer       
+          #SNAPSHOT_URL = https://namada-snapshot.shield-crypto.com/masp-indexer.sql
+          #DB_NAME = masp_indexer_local
+
+          
+          wget -O dump.sql $SNAPSHOT_URL
+
+          docker compose down
+          
+          docker compose up -d postgres
+          
+          docker compose cp dump.sql postgres:/tmp/dump.sql
+          
+          docker compose exec postgres pg_restore -p 5433 -d $DB_NAME  --clean tmp/dump.sql --verbose
+          
+          docker compose exec postgres rm tmp/dump.sql
+          
+          docker compose up -d
+
+</code>
+      </div>
+
+    </div>
+    <script>
+      function copyCode() {
+        const code = document.querySelector("#code-container code").innerText;
+        navigator.clipboard.writeText(code).then(() => {
+          alert("Code copied to clipboard!");
+        }).catch(err => {
+          alert("Failed to copy code: " + err);
+        });
+      }
+    </script>
+  </section>
+
+
+  <!-- Details & Downéload -->
+  <section class="sectionSize bg-black text-white">
+    <div>
+      <h2 class="secondaryTitle bg-underline3 bg-100%">Download Data</h2>
+    </div>
+
+  <!-- Indexer-->
+    <div class="md:grid md:grid-cols-2 gap-8">
+      <div class="bg-secondary text-black rounded-2xl p-8 mb-8 md:mb-0">
+        <h3 class="font-pt-serif font-bold text-2xl mb-4">Indexer Snapshot</h3>
+        <p class="font-montserrat mb-4">
+        <div id="snapshot-info">
+          <p><strong>Snapshot Timestamp:</strong> <span id="timestamp">Loading...</span></p>
+          <p><strong>Chain Block Height:</strong> <span id="chainlastProcessedBlockHeight">Loading...</span></p>
+          <p><strong>Transactions Block Height:</strong> <span id="txlastProcessedBlockHeight">Loading...</span></p>
+          <p><strong>DB Size:</strong> <span id="dbsize">Loading...</span></p>
+
+        </div>
+        </p>
+      </div>
+
+      <div class="bg-secondary text-black rounded-2xl p-8">
+        <h3 class="font-pt-serif font-bold text-2xl mb-4">Direct Link</h3>
+        <a href="https://namada-snapshot.shield-crypto.com/namada-indexer.sql" target="_blank"
+          class="bg-[#ffff54] my-6 block text-black px-6 py-3 rounded-lg hover:bg-white hover:text-black border-2 border-black transition duration-300">
+          Download Indexer Snapshot
+        </a>
+
+      </div>
+
+         <!--MASP Indexer-->
+
+         <div class="bg-secondary text-black rounded-2xl p-8 mb-8 md:mb-0">
+          <h3 class="font-pt-serif font-bold text-2xl mb-4">MASP Indexer Snapshot</h3>
+          <p class="font-montserrat mb-4">
+          <div id="snapshot-info">
+            <p><strong>Snapshot Timestamp:</strong> <span id="masp_timestamp">Loading...</span></p>
+            <p><strong>MASP Block Height:</strong> <span id="masp_block_height">Loading...</span></p>
+            <p><strong>DB Size:</strong> <span id="maspdbsize">Loading...</span></p>
+  
+          </div>
+          </p>
+        </div>
+  
+        <div class="bg-secondary text-black rounded-2xl p-8">
+          <h3 class="font-pt-serif font-bold text-2xl mb-4">Direct Link</h3>
+          <a href="https://namada-snapshot.shield-crypto.com/masp-indexer.sql" target="_blank"
+            class="bg-[#ffff54] my-6 block text-black px-6 py-3 rounded-lg hover:bg-white hover:text-black border-2 border-black transition duration-300">
+            Download MASP Indexer Snapshot
+          </a>
+  
+        </div>
+
+    </div>
+
+  </section>
+
+  <hr class="w-full bg-white" />
+
+
+
+  </section>
+  <!-- Footer -->
+  <section class="bg-black sectionSize">
+    <div class="mb-4">
+      <img src='assets/Logo_white.svg' alt="Shield Crypto Logo" class="h-14" />
+    </div>
+    <div class="flex mb-8">
+      <a href="https://discord.com/invite/v7uSwKN3">
+        <img src='assets/logos/Discord.svg' alt="Discord logo" class="mx-4" />
+      </a>
+      <a href="mailto:namada@shield-crypto.com">
+        <img src='assets/logos/Email.svg' alt="Email Icon" class="mx-4" />
+      </a>
+    </div>
+    <iframe src="https://namada-validator-status.shield-crypto.com/badge?theme=dark" width="250" height="30"
+      frameborder="0" scrolling="no" style="color-scheme: normal"></iframe>
+    <div class="text-white font-montserrat text-sm">
+      © 2025 Shield Crypto Validator. All rights reserved
+    </div>
+  </section>
+
+
+  <script>
+    // Load snapshot details dynamically
+    fetch('https://namada-snapshot.shield-crypto.com/snapshot-indexer-details.json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('timestamp').textContent = data.timestamp;
+        document.getElementById('chainlastProcessedBlockHeight').textContent = data.chainlastProcessedBlockHeight;
+        document.getElementById('txlastProcessedBlockHeight').textContent = data.txlastProcessedBlockHeight;
+        document.getElementById('dbsize').textContent = data.dbsize;
+      })
+      .catch(error => {
+        console.error('Error loading snapshot details:', error);
+      });
+
+      fetch('https://namada-snapshot.shield-crypto.com/snapshot-masp-indexer-details.json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('masp_timestamp').textContent = data.timestamp;
+        document.getElementById('masp_block_height').textContent = data.masp_block_height;
+        document.getElementById('maspdbsize').textContent = data.dbsize;
+      })
+      .catch(error => {
+        console.error('Error loading MASP snapshot details:', error);
+      });
+  </script>
+</body>
+
+</html>
